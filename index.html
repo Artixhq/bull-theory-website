@@ -1050,36 +1050,77 @@
   </footer>
 
   <script>
-    // Override Curator template BEFORE the script loads
-    window.Curator = window.Curator || {};
-    window.Curator.Templates = window.Curator.Templates || {};
-    window.Curator.Templates['post-v2'] =
-      '<a class="post-card" href="<%=url%>" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit;margin-bottom:8px;">' +
-        '<div class="post-header">' +
-          '<div class="post-avatar"><img src="logo.png" alt="Bull Theory" style="width:36px;height:36px;object-fit:contain;border-radius:4px;" /></div>' +
-          '<div class="post-handle"><strong>Bull Theory</strong>@BullTheoryio</div>' +
-          '<span class="post-time"><%=this.prettyDate(source_created_at)%></span>' +
-        '</div>' +
-        '<div class="post-body" style="font-size:13px;line-height:1.65;color:var(--text);margin-bottom:12px;"><%=this.parseText(text)%></div>' +
-        '<div class="post-footer" style="display:flex;gap:20px;padding-top:12px;border-top:1px solid var(--border);">' +
-          '<span class="post-action" style="font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--text-muted);display:flex;align-items:center;gap:5px;">' +
-            '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>' +
-            'View on X' +
-          '</span>' +
-        '</div>' +
-      '</a>';
-  </script>
+    // ── Curator API → Bull Theory cards ───────────────
+    const CURATOR_API_KEY  = 'f1b36557-a77d-4611-9c70-ce6ff00e2c13';
+    const CURATOR_FEED_ID  = '543f46c9-f531-489f-b219-50308b2e8903';
 
-  <!-- Curator published feed script -->
-  <script type="text/javascript">
-  (function(){
-    var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
-    i.src="https://cdn.curator.io/published/543f46c9-f531-489f-b219-50308b2e8903.js";
-    e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i,e);
-  })();
-  </script>
+    function timeAgo(dateStr) {
+      const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+      if (diff < 60)    return diff + 's ago';
+      if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+      return Math.floor(diff / 86400) + 'd ago';
+    }
 
-  <script>
+    function highlightTags(text) {
+      return text
+        .replace(/(\$[A-Z]{1,6})/g, '<span class="tag">$1</span>')
+        .replace(/(#\w+)/g,         '<span class="tag">$1</span>');
+    }
+
+    function renderPosts(posts) {
+      const container = document.getElementById('curator-feed-default-feed-layout');
+      if (!posts || posts.length === 0) {
+        container.innerHTML = '<div style="padding:24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-muted);">No posts found.</div>';
+        return;
+      }
+      container.innerHTML = posts.slice(0, 8).map(post => {
+        const url  = post.url || `https://x.com/BullTheoryio`;
+        const text = highlightTags(post.text || '');
+        const time = timeAgo(post.source_created_at || post.created_at || new Date());
+        return `
+          <a class="post-card" href="${url}" target="_blank" rel="noopener"
+             style="display:block;text-decoration:none;color:inherit;margin-bottom:8px;">
+            <div class="post-header">
+              <div class="post-avatar">
+                <img src="logo.png" alt="Bull Theory"
+                     style="width:36px;height:36px;object-fit:contain;border-radius:4px;" />
+              </div>
+              <div class="post-handle">
+                <strong>Bull Theory</strong>
+                @BullTheoryio
+              </div>
+              <span class="post-time">${time}</span>
+            </div>
+            <div class="post-body" style="font-size:13px;line-height:1.65;color:var(--text);margin-bottom:12px;">${text}</div>
+            <div class="post-footer" style="display:flex;gap:20px;padding-top:12px;border-top:1px solid var(--border);">
+              <span class="post-action" style="font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--text-muted);display:flex;align-items:center;gap:5px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/>
+                </svg>
+                View on X
+              </span>
+            </div>
+          </a>`;
+      }).join('');
+    }
+
+    fetch(`https://api.curator.io/v1/feeds/${CURATOR_FEED_ID}/posts?limit=8&status=1&api_key=${CURATOR_API_KEY}`)
+      .then(r => r.json())
+      .then(data => renderPosts(data.posts || []))
+      .catch(() => {
+        document.getElementById('curator-feed-default-feed-layout').innerHTML = `
+          <div style="padding:24px;text-align:center;">
+            <a href="https://x.com/BullTheoryio" target="_blank" class="btn-primary"
+               style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/>
+              </svg>
+              View posts on X
+            </a>
+          </div>`;
+      });
+
     // ── Scroll reveal ──────────────────────────────────
     const reveals = document.querySelectorAll('[data-reveal]');
     const observer = new IntersectionObserver((entries) => {
