@@ -1063,52 +1063,67 @@
   </footer>
 
   <script>
-    // ── Live Ticker via Finnhub ────────────────────────
+    // ── Live Ticker — multi-source ─────────────────────
     const FINNHUB_KEY = 'd71g6k1r01qot5jda9ogd71g6k1r01qot5jda9p0';
 
-    const ASSETS = [
-      { sym: 'BITCOIN',  id: 'BINANCE:BTCUSDT'  },
-      { sym: 'ETH',      id: 'BINANCE:ETHUSDT'  },
-      { sym: 'NASDAQ',   id: 'OANDA:NAS100_USD' },
-      { sym: 'GOLD',     id: 'OANDA:XAU_USD'    },
-      { sym: 'SILVER',   id: 'OANDA:XAG_USD'    },
-      { sym: 'US OIL',   id: 'OANDA:BCO_USD'    },
-      { sym: 'S&P 500',  id: 'OANDA:SPX500_USD' },
-      { sym: 'NIKKEI',   id: 'OANDA:JP225_USD'  },
-      { sym: 'KOSPI',    id: 'OANDA:KI300_USD'  },
+    // Crypto via Binance (always free, no restrictions)
+    const CRYPTO = [
+      { sym: 'BITCOIN', id: 'BTCUSDT' },
+      { sym: 'ETH',     id: 'ETHUSDT' },
+    ];
+
+    // Stocks/indices/commodities via Finnhub free tier
+    const STOCKS = [
+      { sym: 'NASDAQ',  id: 'QQQ'  },  // Nasdaq 100 ETF — best free proxy
+      { sym: 'S&P 500', id: 'SPY'  },  // S&P 500 ETF
+      { sym: 'GOLD',    id: 'GLD'  },  // Gold ETF (tracks spot gold closely)
+      { sym: 'SILVER',  id: 'SLV'  },  // Silver ETF
+      { sym: 'US OIL',  id: 'USO'  },  // US Oil ETF
+      { sym: 'NIKKEI',  id: 'EWJ'  },  // Japan ETF
+      { sym: 'KOSPI',   id: 'EWY'  },  // South Korea ETF
     ];
 
     function formatPrice(p, sym) {
-      if (sym === 'BITCOIN') return '$' + p.toLocaleString('en-US', { maximumFractionDigits: 0 });
-      if (sym === 'NASDAQ' || sym === 'S&P 500' || sym === 'NIKKEI' || sym === 'KOSPI')
-        return p.toLocaleString('en-US', { maximumFractionDigits: 0 });
-      if (p >= 100) return '$' + p.toFixed(2);
+      if (sym === 'BITCOIN') return '$' + Math.round(p).toLocaleString('en-US');
+      if (p >= 1000) return p.toLocaleString('en-US', { maximumFractionDigits: 0 });
       return '$' + p.toFixed(2);
     }
 
-    function tickerItem(sym, price, change) {
-      const dir   = change >= 0 ? 'up' : 'dn';
-      const arrow = change >= 0 ? '▲' : '▼';
-      const pct   = Math.abs(change).toFixed(2);
+    function makeItem(sym, price, changePct) {
+      const dir   = changePct >= 0 ? 'up' : 'dn';
+      const arrow = changePct >= 0 ? '▲' : '▼';
+      const pct   = Math.abs(changePct).toFixed(2);
       return `<span class="ticker-item"><span class="sym">${sym}</span> ${formatPrice(price, sym)} <span class="${dir}">${arrow} ${pct}%</span></span>`;
     }
 
     async function fetchTicker() {
-      const results = await Promise.allSettled(
-        ASSETS.map(a =>
-          fetch(`https://finnhub.io/api/v1/quote?symbol=${a.id}&token=${FINNHUB_KEY}`)
-            .then(r => r.json())
-            .then(d => ({ sym: a.sym, price: d.c, change: d.dp }))
-        )
-      );
+      const items = [];
 
-      const items = results
-        .filter(r => r.status === 'fulfilled' && r.value.price)
-        .map(r => tickerItem(r.value.sym, r.value.price, r.value.change))
-        .join('');
+      // 1. Crypto from Binance — real-time, no key needed
+      await Promise.allSettled(CRYPTO.map(async c => {
+        try {
+          const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${c.id}`);
+          const d = await r.json();
+          items.push({ sym: c.sym, price: parseFloat(d.lastPrice), change: parseFloat(d.priceChangePercent), order: CRYPTO.indexOf(c) });
+        } catch(e) {}
+      }));
 
-      if (items) {
-        document.getElementById('ticker').innerHTML = items + items;
+      // 2. Stocks/indices/commodities from Finnhub
+      await Promise.allSettled(STOCKS.map(async (s, i) => {
+        try {
+          const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${s.id}&token=${FINNHUB_KEY}`);
+          const d = await r.json();
+          if (d.c && d.c > 0) {
+            items.push({ sym: s.sym, price: d.c, change: d.dp, order: CRYPTO.length + i });
+          }
+        } catch(e) {}
+      }));
+
+      // Sort in original order and build HTML
+      items.sort((a, b) => a.order - b.order);
+      const html = items.map(i => makeItem(i.sym, i.price, i.change)).join('');
+      if (html) {
+        document.getElementById('ticker').innerHTML = html + html;
       }
     }
 
