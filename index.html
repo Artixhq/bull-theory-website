@@ -965,14 +965,14 @@
     <p class="section-body">Direct from <strong style="color:var(--text)">@BullTheoryio</strong> — unfiltered, real-time market takes.</p>
 
     <div class="feed-layout">
-      <!-- CURATOR FEED -->
+      <!-- LIVE POSTS FEED -->
       <div class="x-feed-wrap">
         <div class="x-feed-header">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
           <span class="x-feed-title">@BullTheoryio <span>LIVE</span></span>
         </div>
-        <div style="padding: 12px;">
-          <div id="curator-feed-default-feed-layout"><a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a></div>
+        <div class="manual-posts" id="bt-posts">
+          <div style="padding: 24px; text-align:center; font-family: var(--mono); font-size:11px; color: var(--text-muted);">Loading posts...</div>
         </div>
       </div>
 
@@ -1046,18 +1046,8 @@
     </ul>
   </footer>
 
-  <!-- CURATOR EMBED SCRIPT -->
-  <script type="text/javascript">
-  (function(){
-  var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
-  i.src="https://cdn.curator.io/published/543f46c9-f531-489f-b219-50308b2e8903.js";
-  e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e);
-  })();
-  </script>
-
   <script>
-
-    // Scroll reveal
+    // ── Scroll reveal ──────────────────────────────────
     const reveals = document.querySelectorAll('[data-reveal]');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(e => {
@@ -1065,6 +1055,73 @@
       });
     }, { threshold: 0.1 });
     reveals.forEach(el => observer.observe(el));
+
+    // ── Curator API feed renderer ───────────────────────
+    const CURATOR_FEED_ID = '543f46c9-f531-489f-b219-50308b2e8903';
+
+    function timeAgo(dateStr) {
+      const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+      if (diff < 60) return diff + 's ago';
+      if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+      return Math.floor(diff / 86400) + 'd ago';
+    }
+
+    function highlightTags(text) {
+      return text
+        .replace(/(\$[A-Z]+)/g, '<span class="tag">$1</span>')
+        .replace(/(#\w+)/g, '<span class="tag">$1</span>');
+    }
+
+    function renderPosts(posts) {
+      const container = document.getElementById('bt-posts');
+      if (!posts || posts.length === 0) {
+        container.innerHTML = '<div style="padding:24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-muted);">No posts found.</div>';
+        return;
+      }
+      container.innerHTML = posts.slice(0, 8).map(post => {
+        const url = post.url || post.sourceUrl || `https://x.com/BullTheoryio`;
+        const text = highlightTags(post.text || post.content || '');
+        const time = timeAgo(post.createdAt || post.publishedAt || new Date());
+        return `
+          <a class="post-card" href="${url}" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit;">
+            <div class="post-header">
+              <div class="post-avatar">
+                <img src="logo.png" alt="Bull Theory" style="width:36px;height:36px;object-fit:contain;border-radius:4px;" />
+              </div>
+              <div class="post-handle">
+                <strong>Bull Theory</strong>
+                @BullTheoryio
+              </div>
+              <span class="post-time">${time}</span>
+            </div>
+            <div class="post-body">${text}</div>
+            <div class="post-footer">
+              <span class="post-action">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
+                View on X
+              </span>
+            </div>
+          </a>`;
+      }).join('');
+    }
+
+    fetch(`https://api.curator.io/v1/feeds/${CURATOR_FEED_ID}/posts?limit=8&status=published`)
+      .then(r => r.json())
+      .then(data => {
+        const posts = data.posts || data.data || [];
+        renderPosts(posts);
+      })
+      .catch(() => {
+        // Fallback: link to X profile
+        document.getElementById('bt-posts').innerHTML = `
+          <div style="padding:24px;text-align:center;">
+            <a href="https://x.com/BullTheoryio" target="_blank" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
+              View posts on X
+            </a>
+          </div>`;
+      });
   </script>
 </body>
 </html>
