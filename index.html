@@ -1063,100 +1063,45 @@
   </footer>
 
   <script>
-    // ── Live Ticker via Yahoo Finance (no key, accurate prices) ──
-    const NO_DOLLAR = ['NASDAQ', 'S&P 500', 'NIKKEI', 'KOSPI'];
-
-    const ASSETS = [
-      { sym: 'BITCOIN', ticker: 'BTC-USD'  },
-      { sym: 'ETH',     ticker: 'ETH-USD'  },
-      { sym: 'NASDAQ',  ticker: '^NDX'     },
-      { sym: 'S&P 500', ticker: '^GSPC'    },
-      { sym: 'GOLD',    ticker: 'GC=F'     },
-      { sym: 'SILVER',  ticker: 'SI=F'     },
-      { sym: 'US OIL',  ticker: 'CL=F'     },
-      { sym: 'NIKKEI',  ticker: '^N225'    },
-      { sym: 'KOSPI',   ticker: '^KS11'    },
+    // ── Live Ticker via Binance (top 5 crypto) ─────────
+    const COINS = [
+      { sym: 'BITCOIN', id: 'BTCUSDT' },
+      { sym: 'ETH',     id: 'ETHUSDT' },
+      { sym: 'BNB',     id: 'BNBUSDT' },
+      { sym: 'SOL',     id: 'SOLUSDT' },
+      { sym: 'XRP',     id: 'XRPUSDT' },
     ];
 
-    function formatPrice(p, sym) {
-      if (NO_DOLLAR.includes(sym)) {
-        if (p >= 10000) return Math.round(p).toLocaleString('en-US');
-        return p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      }
-      if (p >= 10000) return '$' + Math.round(p).toLocaleString('en-US');
-      if (p >= 100)   return '$' + p.toFixed(2);
-      return '$' + p.toFixed(3);
+    function formatPrice(p) {
+      if (p >= 1000) return '$' + p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (p >= 1)    return '$' + p.toFixed(2);
+      return '$' + p.toFixed(4);
     }
 
-    function makeItem(sym, price, changePct) {
-      const dir   = changePct >= 0 ? 'up' : 'dn';
-      const arrow = changePct >= 0 ? '▲' : '▼';
-      const pct   = Math.abs(changePct).toFixed(2);
-      return `<span class="ticker-item"><span class="sym">${sym}</span> ${formatPrice(price, sym)} <span class="${dir}">${arrow} ${pct}%</span></span>`;
+    function makeItem(sym, price, change) {
+      const dir   = change >= 0 ? 'up' : 'dn';
+      const arrow = change >= 0 ? '\u25b2' : '\u25bc';
+      const pct   = Math.abs(change).toFixed(2);
+      return `<span class="ticker-item"><span class="sym">${sym}</span> ${formatPrice(price)} <span class="${dir}">${arrow} ${pct}%</span></span>`;
     }
 
     async function fetchTicker() {
-      const items = [];
-
-      // Crypto — Binance (no CORS)
       try {
-        const [btc, eth] = await Promise.all([
-          fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT').then(r => r.json()),
-          fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT').then(r => r.json()),
-        ]);
-        items.push({ sym: 'BITCOIN', price: parseFloat(btc.lastPrice), change: parseFloat(btc.priceChangePercent), order: 0 });
-        items.push({ sym: 'ETH',     price: parseFloat(eth.lastPrice), change: parseFloat(eth.priceChangePercent), order: 1 });
+        const results = await Promise.all(
+          COINS.map(c =>
+            fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${c.id}`)
+              .then(r => r.json())
+          )
+        );
+        const html = results.map((d, i) =>
+          makeItem(COINS[i].sym, parseFloat(d.lastPrice), parseFloat(d.priceChangePercent))
+        ).join('');
+        document.getElementById('ticker').innerHTML = html + html;
       } catch(e) {}
-
-      // Indices via stooq (no CORS, no key)
-      const stooqMap = [
-        { sym: 'NASDAQ',  id: '%5endx',  order: 2 },
-        { sym: 'S&P 500', id: '%5espx',  order: 3 },
-        { sym: 'NIKKEI',  id: '%5en225', order: 7 },
-        { sym: 'KOSPI',   id: '%5ekospi',order: 8 },
-      ];
-      await Promise.allSettled(stooqMap.map(async s => {
-        try {
-          const r = await fetch(`https://stooq.com/q/l/?s=${s.id}&f=sd2t2ohlcvn&e=json`);
-          const d = await r.json();
-          const q = d?.symbols?.[0];
-          if (q?.Close) {
-            const price  = parseFloat(q.Close);
-            const open   = parseFloat(q.Open);
-            const change = ((price - open) / open) * 100;
-            items.push({ sym: s.sym, price, change, order: s.order });
-          }
-        } catch(e) {}
-      }));
-
-      // Gold & Silver — metals-api.com free (no key)
-      try {
-        const r = await fetch('https://api.metals.live/v1/spot');
-        const d = await r.json();
-        if (d?.gold)   items.push({ sym: 'GOLD',   price: d.gold,   change: 0, order: 4 });
-        if (d?.silver) items.push({ sym: 'SILVER', price: d.silver, change: 0, order: 5 });
-      } catch(e) {}
-
-      // Oil — WTI via stooq
-      try {
-        const r = await fetch('https://stooq.com/q/l/?s=cl.f&f=sd2t2ohlcvn&e=json');
-        const d = await r.json();
-        const q = d?.symbols?.[0];
-        if (q?.Close) {
-          const price  = parseFloat(q.Close);
-          const open   = parseFloat(q.Open);
-          const change = ((price - open) / open) * 100;
-          items.push({ sym: 'US OIL', price, change, order: 6 });
-        }
-      } catch(e) {}
-
-      items.sort((a, b) => a.order - b.order);
-      const html = items.map(i => makeItem(i.sym, i.price, i.change)).join('');
-      if (html) document.getElementById('ticker').innerHTML = html + html;
     }
 
     fetchTicker();
-    setInterval(fetchTicker, 60000);
+    setInterval(fetchTicker, 30000);
     const CURATOR_API_KEY  = 'f1b36557-a77d-4611-9c70-ce6ff00e2c13';
     const CURATOR_FEED_ID  = '543f46c9-f531-489f-b219-50308b2e8903';
 
