@@ -1096,33 +1096,50 @@
     }
 
     async function fetchTicker() {
+      const items = [];
+
+      // 1. Crypto from Binance — always works, no CORS issues
       try {
-        const tickers = ASSETS.map(a => encodeURIComponent(a.ticker)).join(',');
-        const yahoo = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${tickers}&fields=regularMarketPrice,regularMarketChangePercent`;
-        const proxy = `https://corsproxy.io/?${encodeURIComponent(yahoo)}`;
-        const r = await fetch(proxy);
-        const data = await r.json();
-        const quotes = data?.quoteResponse?.result || [];
+        const [btc, eth] = await Promise.all([
+          fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT').then(r => r.json()),
+          fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT').then(r => r.json()),
+        ]);
+        items.push({ sym: 'BITCOIN', price: parseFloat(btc.lastPrice),  change: parseFloat(btc.priceChangePercent),  order: 0 });
+        items.push({ sym: 'ETH',     price: parseFloat(eth.lastPrice),  change: parseFloat(eth.priceChangePercent),  order: 1 });
+      } catch(e) {}
 
-        const items = ASSETS.map(a => {
-          const q = quotes.find(q => q.symbol === a.ticker);
-          if (!q || !q.regularMarketPrice) return null;
-          return makeItem(a.sym, q.regularMarketPrice, q.regularMarketChangePercent || 0);
-        }).filter(Boolean).join('');
+      // 2. Everything else via allorigins → Yahoo Finance
+      try {
+        const tickers = ['^NDX', '^GSPC', 'GC=F', 'SI=F', 'CL=F', '^N225', '^KS11'].join(',');
+        const yahoo   = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(tickers)}`;
+        const proxy   = `https://api.allorigins.win/get?url=${encodeURIComponent(yahoo)}`;
+        const r       = await fetch(proxy);
+        const wrapper = await r.json();
+        const data    = JSON.parse(wrapper.contents);
+        const quotes  = data?.quoteResponse?.result || [];
 
-        if (items) document.getElementById('ticker').innerHTML = items + items;
-      } catch(e) {
-        // Fallback to Binance for crypto only
-        try {
-          const [btc, eth] = await Promise.all([
-            fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT').then(r => r.json()),
-            fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT').then(r => r.json()),
-          ]);
-          const items = makeItem('BITCOIN', parseFloat(btc.lastPrice), parseFloat(btc.priceChangePercent))
-                      + makeItem('ETH', parseFloat(eth.lastPrice), parseFloat(eth.priceChangePercent));
-          document.getElementById('ticker').innerHTML = items + items;
-        } catch(e2) {}
-      }
+        const map = {
+          '^NDX':   { sym: 'NASDAQ',  order: 2 },
+          '^GSPC':  { sym: 'S&P 500', order: 3 },
+          'GC=F':   { sym: 'GOLD',    order: 4 },
+          'SI=F':   { sym: 'SILVER',  order: 5 },
+          'CL=F':   { sym: 'US OIL',  order: 6 },
+          '^N225':  { sym: 'NIKKEI',  order: 7 },
+          '^KS11':  { sym: 'KOSPI',   order: 8 },
+        };
+
+        quotes.forEach(q => {
+          const m = map[q.symbol];
+          if (m && q.regularMarketPrice) {
+            items.push({ sym: m.sym, price: q.regularMarketPrice, change: q.regularMarketChangePercent || 0, order: m.order });
+          }
+        });
+      } catch(e) {}
+
+      // Render
+      items.sort((a, b) => a.order - b.order);
+      const html = items.map(i => makeItem(i.sym, i.price, i.change)).join('');
+      if (html) document.getElementById('ticker').innerHTML = html + html;
     }
 
     fetchTicker();
