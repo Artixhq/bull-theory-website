@@ -965,78 +965,14 @@
     <p class="section-body">Direct from <strong style="color:var(--text)">@BullTheoryio</strong> — unfiltered, real-time market takes.</p>
 
     <div class="feed-layout">
-      <!-- X EMBED -->
+      <!-- CURATOR FEED -->
       <div class="x-feed-wrap">
         <div class="x-feed-header">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
-          <span class="x-feed-title">@BullTheoryio<span>LIVE</span></span>
+          <span class="x-feed-title">@BullTheoryio <span>LIVE</span></span>
         </div>
-        <div class="x-widget-container">
-          <a class="twitter-timeline"
-             data-theme="dark"
-             data-chrome="noheader nofooter noborders transparent"
-             data-tweet-limit="8"
-             href="https://twitter.com/BullTheoryio">
-          </a>
-        </div>
-        <!-- Fallback posts shown while Twitter loads -->
-        <div class="manual-posts" id="fallback-posts">
-          <div class="post-card">
-            <div class="post-header">
-              <div class="post-avatar"><img src="logo.png" alt="Bull Theory" style="width:36px;height:36px;object-fit:contain;border-radius:4px;" /></div>
-              <div class="post-handle">
-                <strong>Bull Theory</strong>
-                @BullTheoryio
-              </div>
-              <span class="post-time">2h ago</span>
-            </div>
-            <div class="post-body">
-              TRUMP JUST TRIGGERED THE BIGGEST CRYPTO CRASH<br/>And it was all pre planned. Here's what happened —<br/>Two days before the Truth Social post, one of Bitcoin's oldest wallets suddenly opened large short positions on <span class="tag">$BTC</span> and <span class="tag">$ETH</span> worth billions. No catalyst. No reason.🧵
-            </div>
-            <div class="post-footer">
-              <span class="post-action">💬 Reply</span>
-              <span class="post-action">🔁 Repost</span>
-              <span class="post-action">❤️ Like</span>
-            </div>
-          </div>
-
-          <div class="post-card">
-            <div class="post-header">
-              <div class="post-avatar"><img src="logo.png" alt="Bull Theory" style="width:36px;height:36px;object-fit:contain;border-radius:4px;" /></div>
-              <div class="post-handle">
-                <strong>Bull Theory</strong>
-                @BullTheoryio
-              </div>
-              <span class="post-time">5h ago</span>
-            </div>
-            <div class="post-body">
-              <span class="tag">$BTC</span> is forming a classic accumulation range. Institutional wallets have been quietly loading between $78k–$82k for the past 10 days.<br/><br/>Retail is scared. Smart money is buying.
-            </div>
-            <div class="post-footer">
-              <span class="post-action">💬 Reply</span>
-              <span class="post-action">🔁 Repost</span>
-              <span class="post-action">❤️ Like</span>
-            </div>
-          </div>
-
-          <div class="post-card">
-            <div class="post-header">
-              <div class="post-avatar"><img src="logo.png" alt="Bull Theory" style="width:36px;height:36px;object-fit:contain;border-radius:4px;" /></div>
-              <div class="post-handle">
-                <strong>Bull Theory</strong>
-                @BullTheoryio
-              </div>
-              <span class="post-time">1d ago</span>
-            </div>
-            <div class="post-body">
-              Fed minutes dropped. Here's the one line that matters for crypto:<br/><br/>"Prepared to adjust rates if labour market deteriorates unexpectedly."<br/><br/>Translation: rate cuts are still on the table. Bullish for risk assets.
-            </div>
-            <div class="post-footer">
-              <span class="post-action">💬 Reply</span>
-              <span class="post-action">🔁 Repost</span>
-              <span class="post-action">❤️ Like</span>
-            </div>
-          </div>
+        <div style="padding: 12px;">
+          <div id="curator-feed-default-feed-layout"><a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a></div>
         </div>
       </div>
 
@@ -1110,17 +1046,16 @@
     </ul>
   </footer>
 
-  <!-- X EMBED SCRIPT -->
-  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <!-- CURATOR EMBED SCRIPT -->
+  <script type="text/javascript">
+  (function(){
+  var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
+  i.src="https://cdn.curator.io/published/543f46c9-f531-489f-b219-50308b2e8903.js";
+  e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e);
+  })();
+  </script>
 
   <script>
-    // Hide fallback posts once Twitter widget loads
-    window.twttr && twttr.ready(function(twttr) {
-      twttr.events.bind('rendered', function() {
-        const fb = document.getElementById('fallback-posts');
-        if (fb) fb.style.display = 'none';
-      });
-    });
 
     // Scroll reveal
     const reveals = document.querySelectorAll('[data-reveal]');
