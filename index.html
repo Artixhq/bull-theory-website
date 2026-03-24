@@ -974,7 +974,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
           <span class="x-feed-title">@BullTheoryio <span>LIVE</span></span>
         </div>
-        <div class="manual-posts" id="bt-posts">
+        <div class="manual-posts" id="curator-feed-default-feed-layout">
           <div style="padding:24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-muted);">Loading posts...</div>
         </div>
       </div>
@@ -1049,44 +1049,37 @@
     </ul>
   </footer>
 
-  <!-- CURATOR CUSTOM TEMPLATE -->
-  <script type="text/html" id="bt-post-template">
-    <a class="post-card" href="<%=url%>" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit;margin-bottom:8px;">
-      <div class="post-header">
-        <div class="post-avatar">
-          <img src="logo.png" alt="Bull Theory" style="width:36px;height:36px;object-fit:contain;border-radius:4px;" />
-        </div>
-        <div class="post-handle">
-          <strong>Bull Theory</strong>
-          @BullTheoryio
-        </div>
-        <span class="post-time"><%=this.prettyDate(source_created_at)%></span>
-      </div>
-      <div class="post-body"><%=this.parseText(text)%></div>
-      <div class="post-footer">
-        <span class="post-action">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
-          View on X
-        </span>
-      </div>
-    </a>
+  <script>
+    // Override Curator template BEFORE the script loads
+    window.Curator = window.Curator || {};
+    window.Curator.Templates = window.Curator.Templates || {};
+    window.Curator.Templates['post-v2'] =
+      '<a class="post-card" href="<%=url%>" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit;margin-bottom:8px;">' +
+        '<div class="post-header">' +
+          '<div class="post-avatar"><img src="logo.png" alt="Bull Theory" style="width:36px;height:36px;object-fit:contain;border-radius:4px;" /></div>' +
+          '<div class="post-handle"><strong>Bull Theory</strong>@BullTheoryio</div>' +
+          '<span class="post-time"><%=this.prettyDate(source_created_at)%></span>' +
+        '</div>' +
+        '<div class="post-body" style="font-size:13px;line-height:1.65;color:var(--text);margin-bottom:12px;"><%=this.parseText(text)%></div>' +
+        '<div class="post-footer" style="display:flex;gap:20px;padding-top:12px;border-top:1px solid var(--border);">' +
+          '<span class="post-action" style="font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--text-muted);display:flex;align-items:center;gap:5px;">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>' +
+            'View on X' +
+          '</span>' +
+        '</div>' +
+      '</a>';
   </script>
 
-  <script type="text/javascript" src="//cdn.curator.io/published/543f46c9-f531-489f-b219-50308b2e8903.js"></script>
+  <!-- Curator published feed script -->
   <script type="text/javascript">
-    // Wait for Curator to load then init with custom template
-    window.addEventListener('load', function() {
-      if (window.Curator) {
-        new Curator.Widgets.List({
-          container: '#bt-posts',
-          feedId: '543f46c9-f531-489f-b219-50308b2e8903',
-          postsPerPage: 8,
-          templatePost: 'bt-post-template',
-          showLoadMore: false,
-        });
-      }
-    });
+  (function(){
+    var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
+    i.src="https://cdn.curator.io/published/543f46c9-f531-489f-b219-50308b2e8903.js";
+    e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i,e);
+  })();
+  </script>
 
+  <script>
     // ── Scroll reveal ──────────────────────────────────
     const reveals = document.querySelectorAll('[data-reveal]');
     const observer = new IntersectionObserver((entries) => {
