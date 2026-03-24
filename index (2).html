@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bull Theory — Advanced Crypto Market Insights</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --green: #5be312;
+      --green-dim: #3ea608;
+      --green-glow: rgba(91, 227, 18, 0.18);
+      --green-glow-strong: rgba(91, 227, 18, 0.35);
+      --bg: #080b06;
+      --bg2: #0d110a;
+      --bg3: #111608;
+      --surface: #141a0f;
+      --surface2: #1a2212;
+      --border: rgba(91, 227, 18, 0.12);
+      --border-bright: rgba(91, 227, 18, 0.35);
+      --text: #e8f5e0;
+      --text-dim: #8aaa76;
+      --text-muted: #4a6040;
+      --mono: 'DM Mono', monospace;
+      --display: 'Bebas Neue', sans-serif;
+      --sans: 'Syne', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* NOISE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.5;
+    }
+
+    /* ─── NAV ─────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 64px;
+      background: rgba(8, 11, 6, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .nav-logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+    }
+
+    .nav-logo-text {
+      font-family: var(--display);
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--green);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--green); }
+
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--green);
+      padding: 8px 20px;
+      border-radius: 3px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ─── HERO ────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 100px 40px 60px;
+      position: relative;
+      overflow: hidden;
+      gap: 60px;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 20% 50%, rgba(91, 227, 18, 0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 20%, rgba(91, 227, 18, 0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* animated scan line */
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      opacity: 0.3;
+      animation: scanline 6s linear infinite;
+    }
+
+    @keyframes scanline {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+
+    .hero-left {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 1px;
+      background: var(--green);
+    }
+
+    .hero-h1 {
+      font-family: var(--display);
+      font-size: clamp(64px, 7vw, 110px);
+      line-height: 0.92;
+      letter-spacing: 2px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .hero-h1 .accent { color: var(--green); }
+
+    .hero-sub {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 420px;
+      margin: 28px 0 40px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--green);
+      color: var(--bg);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+      padding: 14px 28px;
+      border-radius: 3px;
+      text-decoration: none;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 24px var(--green-glow-strong);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border-bright);
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 14px 28px;
+      border-radius: 3px;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-item {}
+    .stat-val {
+      font-family: var(--display);
+      font-size: 32px;
+      color: var(--green);
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* hero bull graphic */
+    .hero-right {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bull-container {
+      position: relative;
+      width: 380px;
+      height: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bull-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      animation: spin-slow 20s linear infinite;
+    }
+
+    .bull-ring:nth-child(1) { width: 360px; height: 360px; border-color: rgba(91,227,18,0.06); animation-duration: 25s; }
+    .bull-ring:nth-child(2) { width: 300px; height: 300px; border-color: rgba(91,227,18,0.1); animation-duration: 18s; animation-direction: reverse; }
+    .bull-ring:nth-child(3) { width: 240px; height: 240px; border-color: rgba(91,227,18,0.15); animation-duration: 12s; border-style: dashed; }
+
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .bull-glow {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(91,227,18,0.2) 0%, transparent 70%);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.15); opacity: 0.7; }
+    }
+
+    .bull-logo-large {
+      position: relative;
+      z-index: 2;
+      width: 160px;
+      height: 160px;
+      background: var(--green);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 60px rgba(91, 227, 18, 0.3), 0 0 120px rgba(91, 227, 18, 0.1);
+    }
+
+    .bull-logo-large svg {
+      width: 110px;
+      height: 110px;
+      fill: #080b06;
+    }
+
+    /* ticker */
+    .ticker-bar {
+      width: 100%;
+      overflow: hidden;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+    }
+
+    .ticker-inner {
+      display: flex;
+      gap: 0;
+      animation: ticker 30s linear infinite;
+      white-space: nowrap;
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 32px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      border-right: 1px solid var(--border);
+    }
+
+    .ticker-item .sym { color: var(--text); font-weight: 500; }
+    .ticker-item .up { color: var(--green); }
+    .ticker-item .dn { color: #e05050; }
+
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ─── SECTION GENERIC ─────────────────────────────── */
+    section { padding: 80px 40px; }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: var(--green);
+    }
+
+    .section-title {
+      font-family: var(--display);
+      font-size: clamp(40px, 4vw, 64px);
+      letter-spacing: 1px;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+
+    .section-body {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.8;
+      max-width: 520px;
+    }
+
+    /* ─── WHAT WE COVER ───────────────────────────────── */
+    .what-section {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .what-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1px;
+      margin-top: 48px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .what-card {
+      background: var(--bg2);
+      padding: 32px 28px;
+      transition: background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .what-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--green);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+
+    .what-card:hover { background: var(--surface); }
+    .what-card:hover::after { transform: scaleX(1); }
+
+    .what-icon {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .what-card-title {
+      font-family: var(--display);
+      font-size: 22px;
+      letter-spacing: 1px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .what-card-body {
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--text-muted);
+    }
+
+    /* ─── FEED SECTION ────────────────────────────────── */
+    .feed-section {
+      background: var(--bg);
+    }
+
+    .feed-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 48px;
+      margin-top: 48px;
+      align-items: start;
+    }
+
+    /* X embed container */
+    .x-feed-wrap {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--surface);
+      max-height: 800px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .x-feed-wrap::-webkit-scrollbar { width: 4px; }
+    .x-feed-wrap::-webkit-scrollbar-track { background: transparent; }
+    .x-feed-wrap::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+    .x-feed-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface2);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .x-feed-header svg { color: var(--text-dim); }
+
+    .x-feed-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .x-feed-title span {
+      color: var(--green);
+      margin-left: 4px;
+    }
+
+    .x-widget-container {
+      padding: 0;
+    }
+
+    /* X timeline overrides via color scheme */
+    .x-widget-container iframe {
+      width: 100% !important;
+    }
+
+    /* Fallback manual posts */
+    .manual-posts { padding: 8px; }
+
+    .post-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 18px;
+      margin-bottom: 8px;
+      transition: border-color 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+
+    .post-card:hover {
+      border-color: var(--border-bright);
+      background: var(--surface);
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .post-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      background: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .post-avatar svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--bg);
+    }
+
+    .post-handle {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .post-handle strong {
+      display: block;
+      color: var(--text);
+      font-size: 12px;
+      margin-bottom: 1px;
+    }
+
+    .post-time {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .post-body {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    .post-body .tag { color: var(--green); }
+
+    .post-footer {
+      display: flex;
+      gap: 20px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .post-action {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* right column features */
+    .feed-features { display: flex; flex-direction: column; gap: 24px; }
+
+    .feature-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-block::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--green);
+    }
+
+    .feature-block-title {
+      font-family: var(--display);
+      font-size: 20px;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .feature-block-body {
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--text-dim);
+    }
+
+    .feature-tag {
+      display: inline-block;
+      background: var(--green-glow);
+      border: 1px solid var(--border-bright);
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+      margin-bottom: 12px;
+    }
+
+    /* ─── TESTIMONIAL / MARQUEE ───────────────────────── */
+    .marquee-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 0;
+      overflow: hidden;
+    }
+
+    .marquee-track {
+      display: flex;
+      animation: marquee 20s linear infinite;
+      white-space: nowrap;
+    }
+
+    .marquee-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 40px;
+      font-family: var(--display);
+      font-size: 28px;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      border-right: 1px solid var(--border);
+    }
+
+    .marquee-item .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ─── CTA SECTION ─────────────────────────────────── */
+    .cta-section {
+      background: var(--bg);
+      text-align: center;
+      padding: 100px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(91,227,18,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section .section-title { font-size: clamp(48px, 6vw, 96px); }
+
+    .cta-section .section-body {
+      margin: 20px auto 40px;
+      text-align: center;
+    }
+
+    /* ─── FOOTER ──────────────────────────────────────── */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      font-family: var(--display);
+      font-size: 20px;
+      letter-spacing: 2px;
+      color: var(--green);
+    }
+
+    .footer-copy {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--green); }
+
+    /* ─── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 100px 20px 60px;
+        text-align: center;
+      }
+      .hero-right { display: none; }
+      .hero-eyebrow { justify-content: center; }
+      .hero-sub { margin: 28px auto 40px; }
+      .hero-actions { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      section { padding: 60px 20px; }
+      .feed-layout { grid-template-columns: 1fr; }
+      footer { flex-direction: column; text-align: center; }
+    }
+
+    /* ─── ENTRANCE ANIMATIONS ─────────────────────────── */
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    [data-reveal].visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">
+      <div style="width:36px;height:36px;background:var(--green);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#080b06">
+          <!-- bull head simplified -->
+          <ellipse cx="50" cy="58" rx="30" ry="26"/>
+          <ellipse cx="50" cy="38" rx="22" ry="18"/>
+          <ellipse cx="38" cy="62" rx="9" ry="7"/>
+          <ellipse cx="62" cy="62" rx="9" ry="7"/>
+          <path d="M28 34 Q18 20 22 10 Q30 22 34 28Z"/>
+          <path d="M72 34 Q82 20 78 10 Q70 22 66 28Z"/>
+          <circle cx="43" cy="36" r="4" fill="var(--green)"/>
+          <circle cx="57" cy="36" r="4" fill="var(--green)"/>
+          <ellipse cx="50" cy="50" rx="7" ry="5"/>
+        </svg>
+      </div>
+      <span class="nav-logo-text">BULL THEORY</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#feed">Feed</a></li>
+      <li><a href="#insights">Insights</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+    <a class="nav-cta" href="https://x.com/BullTheoryio" target="_blank">Follow on X →</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+
+    <div class="hero-left">
+      <div class="hero-eyebrow">Advanced Crypto Insights</div>
+      <h1 class="hero-h1">
+        BULL<br/><span class="accent">THEORY</span>
+      </h1>
+      <p class="hero-sub">
+        Research, trades, and all market stuff — simplified.<br/>
+        Real signals. No noise. Built for those who move first.
+      </p>
+      <div class="hero-actions">
+        <a href="#feed" class="btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
+          View Feed
+        </a>
+        <a href="https://x.com/BullTheoryio" target="_blank" class="btn-secondary">
+          Follow @BullTheoryio
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-val">24/7</div>
+          <div class="stat-label">Market Coverage</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">LIVE</div>
+          <div class="stat-label">Trade Signals</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">100%</div>
+          <div class="stat-label">Simplified</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="bull-container">
+        <div class="bull-ring"></div>
+        <div class="bull-ring"></div>
+        <div class="bull-ring"></div>
+        <div class="bull-glow"></div>
+        <div class="bull-logo-large">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Stylized bull head -->
+            <ellipse cx="100" cy="118" rx="58" ry="50"/>
+            <ellipse cx="100" cy="80" rx="44" ry="36"/>
+            <ellipse cx="78" cy="124" rx="17" ry="13"/>
+            <ellipse cx="122" cy="124" rx="17" ry="13"/>
+            <!-- horns -->
+            <path d="M58 70 Q36 38 44 18 Q60 44 68 58Z"/>
+            <path d="M142 70 Q164 38 156 18 Q140 44 132 58Z"/>
+            <!-- eyes -->
+            <circle cx="86" cy="76" r="8" fill="#5be312"/>
+            <circle cx="114" cy="76" r="8" fill="#5be312"/>
+            <circle cx="87" cy="77" r="4" fill="#080b06"/>
+            <circle cx="115" cy="77" r="4" fill="#080b06"/>
+            <!-- nose -->
+            <ellipse cx="100" cy="104" rx="14" ry="10"/>
+            <circle cx="95" cy="103" r="4" fill="#080b06"/>
+            <circle cx="105" cy="103" r="4" fill="#080b06"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TICKER -->
+  <div class="ticker-bar">
+    <div class="ticker-inner" id="ticker">
+      <span class="ticker-item"><span class="sym">BTC</span> $84,200 <span class="up">▲ +2.4%</span></span>
+      <span class="ticker-item"><span class="sym">ETH</span> $3,180 <span class="up">▲ +1.8%</span></span>
+      <span class="ticker-item"><span class="sym">SOL</span> $172.50 <span class="dn">▼ -0.6%</span></span>
+      <span class="ticker-item"><span class="sym">XRP</span> $0.612 <span class="up">▲ +3.1%</span></span>
+      <span class="ticker-item"><span class="sym">BNB</span> $594.20 <span class="up">▲ +0.9%</span></span>
+      <span class="ticker-item"><span class="sym">DOGE</span> $0.182 <span class="dn">▼ -1.2%</span></span>
+      <span class="ticker-item"><span class="sym">ADA</span> $0.448 <span class="up">▲ +2.7%</span></span>
+      <span class="ticker-item"><span class="sym">AVAX</span> $36.80 <span class="dn">▼ -0.4%</span></span>
+      <!-- duplicate for seamless loop -->
+      <span class="ticker-item"><span class="sym">BTC</span> $84,200 <span class="up">▲ +2.4%</span></span>
+      <span class="ticker-item"><span class="sym">ETH</span> $3,180 <span class="up">▲ +1.8%</span></span>
+      <span class="ticker-item"><span class="sym">SOL</span> $172.50 <span class="dn">▼ -0.6%</span></span>
+      <span class="ticker-item"><span class="sym">XRP</span> $0.612 <span class="up">▲ +3.1%</span></span>
+      <span class="ticker-item"><span class="sym">BNB</span> $594.20 <span class="up">▲ +0.9%</span></span>
+      <span class="ticker-item"><span class="sym">DOGE</span> $0.182 <span class="dn">▼ -1.2%</span></span>
+      <span class="ticker-item"><span class="sym">ADA</span> $0.448 <span class="up">▲ +2.7%</span></span>
+      <span class="ticker-item"><span class="sym">AVAX</span> $36.80 <span class="dn">▼ -0.4%</span></span>
+    </div>
+  </div>
+
+  <!-- WHAT WE COVER -->
+  <section class="what-section" id="insights" data-reveal>
+    <div class="section-label">What We Cover</div>
+    <h2 class="section-title">THE FULL<br/>PICTURE</h2>
+    <p class="section-body">Every angle of the crypto market — decoded and delivered straight to you.</p>
+
+    <div class="what-grid">
+      <div class="what-card">
+        <div class="what-icon">📊</div>
+        <div class="what-card-title">MARKET RESEARCH</div>
+        <div class="what-card-body">Deep dives into macro trends, on-chain data, and market structure. We do the heavy lifting so you don't have to.</div>
+      </div>
+      <div class="what-card">
+        <div class="what-icon">🎯</div>
+        <div class="what-card-title">TRADE IDEAS</div>
+        <div class="what-card-body">High-conviction setups with entries, targets, and context. Built for traders who want clarity over noise.</div>
+      </div>
+      <div class="what-card">
+        <div class="what-icon">⚡</div>
+        <div class="what-card-title">BREAKING NEWS</div>
+        <div class="what-card-body">Real-time coverage of the events that move markets — with context, not just headlines.</div>
+      </div>
+      <div class="what-card">
+        <div class="what-icon">🔍</div>
+        <div class="what-card-title">ON-CHAIN ALPHA</div>
+        <div class="what-card-body">Wallet movements, whale activity, smart money flows — all translated into actionable insight.</div>
+      </div>
+      <div class="what-card">
+        <div class="what-icon">🌐</div>
+        <div class="what-card-title">MACRO WATCH</div>
+        <div class="what-card-body">Rate decisions, geopolitical shifts, and global liquidity — crypto doesn't exist in a vacuum.</div>
+      </div>
+      <div class="what-card">
+        <div class="what-icon">🧵</div>
+        <div class="what-card-title">THREADS & EXPLAINERS</div>
+        <div class="what-card-body">Complex topics simplified into clear, digestible breakdowns. Learn while you earn.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEED SECTION -->
+  <section class="feed-section" id="feed">
+    <div class="section-label">Latest from X</div>
+    <h2 class="section-title">LIVE<br/>FEED</h2>
+    <p class="section-body">Direct from <strong style="color:var(--text)">@BullTheoryio</strong> — unfiltered, real-time market takes.</p>
+
+    <div class="feed-layout">
+      <!-- X EMBED -->
+      <div class="x-feed-wrap">
+        <div class="x-feed-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
+          <span class="x-feed-title">@BullTheoryio<span>LIVE</span></span>
+        </div>
+        <div class="x-widget-container">
+          <a class="twitter-timeline"
+             data-theme="dark"
+             data-chrome="noheader nofooter noborders transparent"
+             data-tweet-limit="8"
+             href="https://twitter.com/BullTheoryio">
+          </a>
+        </div>
+        <!-- Fallback posts shown while Twitter loads -->
+        <div class="manual-posts" id="fallback-posts">
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><ellipse cx="100" cy="118" rx="58" ry="50"/><ellipse cx="100" cy="80" rx="44" ry="36"/><path d="M58 70 Q36 38 44 18 Q60 44 68 58Z"/><path d="M142 70 Q164 38 156 18 Q140 44 132 58Z"/></svg>
+              </div>
+              <div class="post-handle">
+                <strong>Bull Theory</strong>
+                @BullTheoryio
+              </div>
+              <span class="post-time">2h ago</span>
+            </div>
+            <div class="post-body">
+              TRUMP JUST TRIGGERED THE BIGGEST CRYPTO CRASH<br/>And it was all pre planned. Here's what happened —<br/>Two days before the Truth Social post, one of Bitcoin's oldest wallets suddenly opened large short positions on <span class="tag">$BTC</span> and <span class="tag">$ETH</span> worth billions. No catalyst. No reason.🧵
+            </div>
+            <div class="post-footer">
+              <span class="post-action">💬 Reply</span>
+              <span class="post-action">🔁 Repost</span>
+              <span class="post-action">❤️ Like</span>
+            </div>
+          </div>
+
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><ellipse cx="100" cy="118" rx="58" ry="50"/><ellipse cx="100" cy="80" rx="44" ry="36"/><path d="M58 70 Q36 38 44 18 Q60 44 68 58Z"/><path d="M142 70 Q164 38 156 18 Q140 44 132 58Z"/></svg>
+              </div>
+              <div class="post-handle">
+                <strong>Bull Theory</strong>
+                @BullTheoryio
+              </div>
+              <span class="post-time">5h ago</span>
+            </div>
+            <div class="post-body">
+              <span class="tag">$BTC</span> is forming a classic accumulation range. Institutional wallets have been quietly loading between $78k–$82k for the past 10 days.<br/><br/>Retail is scared. Smart money is buying.
+            </div>
+            <div class="post-footer">
+              <span class="post-action">💬 Reply</span>
+              <span class="post-action">🔁 Repost</span>
+              <span class="post-action">❤️ Like</span>
+            </div>
+          </div>
+
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><ellipse cx="100" cy="118" rx="58" ry="50"/><ellipse cx="100" cy="80" rx="44" ry="36"/><path d="M58 70 Q36 38 44 18 Q60 44 68 58Z"/><path d="M142 70 Q164 38 156 18 Q140 44 132 58Z"/></svg>
+              </div>
+              <div class="post-handle">
+                <strong>Bull Theory</strong>
+                @BullTheoryio
+              </div>
+              <span class="post-time">1d ago</span>
+            </div>
+            <div class="post-body">
+              Fed minutes dropped. Here's the one line that matters for crypto:<br/><br/>"Prepared to adjust rates if labour market deteriorates unexpectedly."<br/><br/>Translation: rate cuts are still on the table. Bullish for risk assets.
+            </div>
+            <div class="post-footer">
+              <span class="post-action">💬 Reply</span>
+              <span class="post-action">🔁 Repost</span>
+              <span class="post-action">❤️ Like</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features right column -->
+      <div class="feed-features">
+        <div class="feature-block">
+          <span class="feature-tag">Why Follow</span>
+          <div class="feature-block-title">SIGNAL OVER NOISE</div>
+          <div class="feature-block-body">We don't post for engagement. We post when something actually matters. Every thread is worth your time.</div>
+        </div>
+        <div class="feature-block">
+          <span class="feature-tag">Simplified</span>
+          <div class="feature-block-title">COMPLEX MADE CLEAR</div>
+          <div class="feature-block-body">Macro shifts, whale moves, on-chain anomalies — broken down so anyone can act on them, not just analysts.</div>
+        </div>
+        <div class="feature-block">
+          <span class="feature-tag">Coverage</span>
+          <div class="feature-block-title">24/7 MARKET WATCH</div>
+          <div class="feature-block-body">Crypto never sleeps and neither does our coverage. When the market moves, we're already talking about it.</div>
+        </div>
+        <div style="margin-top: 8px; text-align: center;">
+          <a href="https://x.com/BullTheoryio" target="_blank" class="btn-primary" style="width:100%;justify-content:center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
+            Follow @BullTheoryio
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <span class="marquee-item"><span class="dot"></span>RESEARCH</span>
+      <span class="marquee-item"><span class="dot"></span>TRADE IDEAS</span>
+      <span class="marquee-item"><span class="dot"></span>ON-CHAIN ALPHA</span>
+      <span class="marquee-item"><span class="dot"></span>MACRO ANALYSIS</span>
+      <span class="marquee-item"><span class="dot"></span>MARKET SIMPLIFIED</span>
+      <span class="marquee-item"><span class="dot"></span>BULL THEORY</span>
+      <span class="marquee-item"><span class="dot"></span>RESEARCH</span>
+      <span class="marquee-item"><span class="dot"></span>TRADE IDEAS</span>
+      <span class="marquee-item"><span class="dot"></span>ON-CHAIN ALPHA</span>
+      <span class="marquee-item"><span class="dot"></span>MACRO ANALYSIS</span>
+      <span class="marquee-item"><span class="dot"></span>MARKET SIMPLIFIED</span>
+      <span class="marquee-item"><span class="dot"></span>BULL THEORY</span>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <section class="cta-section" id="about">
+    <div class="section-label" style="justify-content:center;">Get In The Know</div>
+    <h2 class="section-title">DON'T MISS<br/>THE MOVE</h2>
+    <p class="section-body" style="text-align:center; margin: 20px auto 40px;">
+      Follow Bull Theory on X for real-time market insights,<br/>
+      trade signals, and everything else that moves the needle.
+    </p>
+    <a href="https://x.com/BullTheoryio" target="_blank" class="btn-primary" style="font-size:12px; padding: 16px 40px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
+      Follow on X — It's Free
+    </a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">BULL THEORY</div>
+    <p class="footer-copy">© 2025 Bull Theory · Advanced Crypto Market Insights · Not financial advice.</p>
+    <ul class="footer-links">
+      <li><a href="https://x.com/BullTheoryio" target="_blank">X / Twitter</a></li>
+      <li><a href="#feed">Feed</a></li>
+      <li><a href="#insights">Insights</a></li>
+    </ul>
+  </footer>
+
+  <!-- X EMBED SCRIPT -->
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+  <script>
+    // Hide fallback posts once Twitter widget loads
+    window.twttr && twttr.ready(function(twttr) {
+      twttr.events.bind('rendered', function() {
+        const fb = document.getElementById('fallback-posts');
+        if (fb) fb.style.display = 'none';
+      });
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('[data-reveal]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
