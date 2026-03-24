@@ -1098,45 +1098,58 @@
     async function fetchTicker() {
       const items = [];
 
-      // 1. Crypto from Binance — always works, no CORS issues
+      // Crypto — Binance (no CORS)
       try {
         const [btc, eth] = await Promise.all([
           fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT').then(r => r.json()),
           fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT').then(r => r.json()),
         ]);
-        items.push({ sym: 'BITCOIN', price: parseFloat(btc.lastPrice),  change: parseFloat(btc.priceChangePercent),  order: 0 });
-        items.push({ sym: 'ETH',     price: parseFloat(eth.lastPrice),  change: parseFloat(eth.priceChangePercent),  order: 1 });
+        items.push({ sym: 'BITCOIN', price: parseFloat(btc.lastPrice), change: parseFloat(btc.priceChangePercent), order: 0 });
+        items.push({ sym: 'ETH',     price: parseFloat(eth.lastPrice), change: parseFloat(eth.priceChangePercent), order: 1 });
       } catch(e) {}
 
-      // 2. Everything else via allorigins → Yahoo Finance
-      try {
-        const tickers = ['^NDX', '^GSPC', 'GC=F', 'SI=F', 'CL=F', '^N225', '^KS11'].join(',');
-        const yahoo   = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(tickers)}`;
-        const proxy   = `https://api.allorigins.win/get?url=${encodeURIComponent(yahoo)}`;
-        const r       = await fetch(proxy);
-        const wrapper = await r.json();
-        const data    = JSON.parse(wrapper.contents);
-        const quotes  = data?.quoteResponse?.result || [];
-
-        const map = {
-          '^NDX':   { sym: 'NASDAQ',  order: 2 },
-          '^GSPC':  { sym: 'S&P 500', order: 3 },
-          'GC=F':   { sym: 'GOLD',    order: 4 },
-          'SI=F':   { sym: 'SILVER',  order: 5 },
-          'CL=F':   { sym: 'US OIL',  order: 6 },
-          '^N225':  { sym: 'NIKKEI',  order: 7 },
-          '^KS11':  { sym: 'KOSPI',   order: 8 },
-        };
-
-        quotes.forEach(q => {
-          const m = map[q.symbol];
-          if (m && q.regularMarketPrice) {
-            items.push({ sym: m.sym, price: q.regularMarketPrice, change: q.regularMarketChangePercent || 0, order: m.order });
+      // Indices via stooq (no CORS, no key)
+      const stooqMap = [
+        { sym: 'NASDAQ',  id: '%5endx',  order: 2 },
+        { sym: 'S&P 500', id: '%5espx',  order: 3 },
+        { sym: 'NIKKEI',  id: '%5en225', order: 7 },
+        { sym: 'KOSPI',   id: '%5ekospi',order: 8 },
+      ];
+      await Promise.allSettled(stooqMap.map(async s => {
+        try {
+          const r = await fetch(`https://stooq.com/q/l/?s=${s.id}&f=sd2t2ohlcvn&e=json`);
+          const d = await r.json();
+          const q = d?.symbols?.[0];
+          if (q?.Close) {
+            const price  = parseFloat(q.Close);
+            const open   = parseFloat(q.Open);
+            const change = ((price - open) / open) * 100;
+            items.push({ sym: s.sym, price, change, order: s.order });
           }
-        });
+        } catch(e) {}
+      }));
+
+      // Gold & Silver — metals-api.com free (no key)
+      try {
+        const r = await fetch('https://api.metals.live/v1/spot');
+        const d = await r.json();
+        if (d?.gold)   items.push({ sym: 'GOLD',   price: d.gold,   change: 0, order: 4 });
+        if (d?.silver) items.push({ sym: 'SILVER', price: d.silver, change: 0, order: 5 });
       } catch(e) {}
 
-      // Render
+      // Oil — WTI via stooq
+      try {
+        const r = await fetch('https://stooq.com/q/l/?s=cl.f&f=sd2t2ohlcvn&e=json');
+        const d = await r.json();
+        const q = d?.symbols?.[0];
+        if (q?.Close) {
+          const price  = parseFloat(q.Close);
+          const open   = parseFloat(q.Open);
+          const change = ((price - open) / open) * 100;
+          items.push({ sym: 'US OIL', price, change, order: 6 });
+        }
+      } catch(e) {}
+
       items.sort((a, b) => a.order - b.order);
       const html = items.map(i => makeItem(i.sym, i.price, i.change)).join('');
       if (html) document.getElementById('ticker').innerHTML = html + html;
