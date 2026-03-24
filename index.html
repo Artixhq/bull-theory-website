@@ -928,23 +928,7 @@
   <!-- TICKER -->
   <div class="ticker-bar">
     <div class="ticker-inner" id="ticker">
-      <span class="ticker-item"><span class="sym">BTC</span> $84,200 <span class="up">▲ +2.4%</span></span>
-      <span class="ticker-item"><span class="sym">ETH</span> $3,180 <span class="up">▲ +1.8%</span></span>
-      <span class="ticker-item"><span class="sym">SOL</span> $172.50 <span class="dn">▼ -0.6%</span></span>
-      <span class="ticker-item"><span class="sym">XRP</span> $0.612 <span class="up">▲ +3.1%</span></span>
-      <span class="ticker-item"><span class="sym">BNB</span> $594.20 <span class="up">▲ +0.9%</span></span>
-      <span class="ticker-item"><span class="sym">DOGE</span> $0.182 <span class="dn">▼ -1.2%</span></span>
-      <span class="ticker-item"><span class="sym">ADA</span> $0.448 <span class="up">▲ +2.7%</span></span>
-      <span class="ticker-item"><span class="sym">AVAX</span> $36.80 <span class="dn">▼ -0.4%</span></span>
-      <!-- duplicate for seamless loop -->
-      <span class="ticker-item"><span class="sym">BTC</span> $84,200 <span class="up">▲ +2.4%</span></span>
-      <span class="ticker-item"><span class="sym">ETH</span> $3,180 <span class="up">▲ +1.8%</span></span>
-      <span class="ticker-item"><span class="sym">SOL</span> $172.50 <span class="dn">▼ -0.6%</span></span>
-      <span class="ticker-item"><span class="sym">XRP</span> $0.612 <span class="up">▲ +3.1%</span></span>
-      <span class="ticker-item"><span class="sym">BNB</span> $594.20 <span class="up">▲ +0.9%</span></span>
-      <span class="ticker-item"><span class="sym">DOGE</span> $0.182 <span class="dn">▼ -1.2%</span></span>
-      <span class="ticker-item"><span class="sym">ADA</span> $0.448 <span class="up">▲ +2.7%</span></span>
-      <span class="ticker-item"><span class="sym">AVAX</span> $36.80 <span class="dn">▼ -0.4%</span></span>
+      <span class="ticker-item"><span class="sym">BTC</span> Loading...</span>
     </div>
   </div>
 
@@ -1077,7 +1061,49 @@
   </footer>
 
   <script>
-    // ── Curator API → Bull Theory cards ───────────────
+    // ── Live Ticker via CoinGecko (free, no key) ───────
+    const COINS = [
+      { id: 'bitcoin',        sym: 'BTC'  },
+      { id: 'ethereum',       sym: 'ETH'  },
+      { id: 'solana',         sym: 'SOL'  },
+      { id: 'ripple',         sym: 'XRP'  },
+      { id: 'binancecoin',    sym: 'BNB'  },
+      { id: 'dogecoin',       sym: 'DOGE' },
+      { id: 'cardano',        sym: 'ADA'  },
+      { id: 'avalanche-2',    sym: 'AVAX' },
+    ];
+
+    function formatPrice(p) {
+      if (p >= 1000) return '$' + p.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      if (p >= 1)    return '$' + p.toFixed(2);
+      return '$' + p.toFixed(4);
+    }
+
+    function buildTicker(data) {
+      const items = COINS.map(c => {
+        const d    = data[c.id];
+        if (!d) return '';
+        const price  = formatPrice(d.usd);
+        const change = d.usd_24h_change;
+        const dir    = change >= 0 ? 'up' : 'dn';
+        const arrow  = change >= 0 ? '▲' : '▼';
+        const pct    = Math.abs(change).toFixed(2);
+        return `<span class="ticker-item"><span class="sym">${c.sym}</span> ${price} <span class="${dir}">${arrow} ${pct}%</span></span>`;
+      }).join('');
+      // duplicate for seamless loop
+      document.getElementById('ticker').innerHTML = items + items;
+    }
+
+    function fetchTicker() {
+      const ids = COINS.map(c => c.id).join(',');
+      fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`)
+        .then(r => r.json())
+        .then(buildTicker)
+        .catch(() => {}); // silently keep last values if fetch fails
+    }
+
+    fetchTicker();
+    setInterval(fetchTicker, 60000); // refresh every 60s
     const CURATOR_API_KEY  = 'f1b36557-a77d-4611-9c70-ce6ff00e2c13';
     const CURATOR_FEED_ID  = '543f46c9-f531-489f-b219-50308b2e8903';
 
