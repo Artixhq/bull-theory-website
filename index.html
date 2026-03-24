@@ -1063,49 +1063,57 @@
   </footer>
 
   <script>
-    // ── Live Ticker via CoinGecko (free, no key) ───────
-    const COINS = [
-      { id: 'bitcoin',        sym: 'BTC'  },
-      { id: 'ethereum',       sym: 'ETH'  },
-      { id: 'solana',         sym: 'SOL'  },
-      { id: 'ripple',         sym: 'XRP'  },
-      { id: 'binancecoin',    sym: 'BNB'  },
-      { id: 'dogecoin',       sym: 'DOGE' },
-      { id: 'cardano',        sym: 'ADA'  },
-      { id: 'avalanche-2',    sym: 'AVAX' },
+    // ── Live Ticker via Finnhub ────────────────────────
+    const FINNHUB_KEY = 'd71g6k1r01qot5jda9ogd71g6k1r01qot5jda9p0';
+
+    const ASSETS = [
+      { sym: 'BITCOIN',  id: 'BINANCE:BTCUSDT'  },
+      { sym: 'ETH',      id: 'BINANCE:ETHUSDT'  },
+      { sym: 'NASDAQ',   id: 'OANDA:NAS100_USD' },
+      { sym: 'GOLD',     id: 'OANDA:XAU_USD'    },
+      { sym: 'SILVER',   id: 'OANDA:XAG_USD'    },
+      { sym: 'US OIL',   id: 'OANDA:BCO_USD'    },
+      { sym: 'S&P 500',  id: 'OANDA:SPX500_USD' },
+      { sym: 'NIKKEI',   id: 'OANDA:JP225_USD'  },
+      { sym: 'KOSPI',    id: 'OANDA:KI300_USD'  },
     ];
 
-    function formatPrice(p) {
-      if (p >= 1000) return '$' + p.toLocaleString('en-US', { maximumFractionDigits: 0 });
-      if (p >= 1)    return '$' + p.toFixed(2);
-      return '$' + p.toFixed(4);
+    function formatPrice(p, sym) {
+      if (sym === 'BITCOIN') return '$' + p.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      if (sym === 'NASDAQ' || sym === 'S&P 500' || sym === 'NIKKEI' || sym === 'KOSPI')
+        return p.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      if (p >= 100) return '$' + p.toFixed(2);
+      return '$' + p.toFixed(2);
     }
 
-    function buildTicker(data) {
-      const items = COINS.map(c => {
-        const d    = data[c.id];
-        if (!d) return '';
-        const price  = formatPrice(d.usd);
-        const change = d.usd_24h_change;
-        const dir    = change >= 0 ? 'up' : 'dn';
-        const arrow  = change >= 0 ? '▲' : '▼';
-        const pct    = Math.abs(change).toFixed(2);
-        return `<span class="ticker-item"><span class="sym">${c.sym}</span> ${price} <span class="${dir}">${arrow} ${pct}%</span></span>`;
-      }).join('');
-      // duplicate for seamless loop
-      document.getElementById('ticker').innerHTML = items + items;
+    function tickerItem(sym, price, change) {
+      const dir   = change >= 0 ? 'up' : 'dn';
+      const arrow = change >= 0 ? '▲' : '▼';
+      const pct   = Math.abs(change).toFixed(2);
+      return `<span class="ticker-item"><span class="sym">${sym}</span> ${formatPrice(price, sym)} <span class="${dir}">${arrow} ${pct}%</span></span>`;
     }
 
-    function fetchTicker() {
-      const ids = COINS.map(c => c.id).join(',');
-      fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`)
-        .then(r => r.json())
-        .then(buildTicker)
-        .catch(() => {}); // silently keep last values if fetch fails
+    async function fetchTicker() {
+      const results = await Promise.allSettled(
+        ASSETS.map(a =>
+          fetch(`https://finnhub.io/api/v1/quote?symbol=${a.id}&token=${FINNHUB_KEY}`)
+            .then(r => r.json())
+            .then(d => ({ sym: a.sym, price: d.c, change: d.dp }))
+        )
+      );
+
+      const items = results
+        .filter(r => r.status === 'fulfilled' && r.value.price)
+        .map(r => tickerItem(r.value.sym, r.value.price, r.value.change))
+        .join('');
+
+      if (items) {
+        document.getElementById('ticker').innerHTML = items + items;
+      }
     }
 
     fetchTicker();
-    setInterval(fetchTicker, 60000); // refresh every 60s
+    setInterval(fetchTicker, 60000);
     const CURATOR_API_KEY  = 'f1b36557-a77d-4611-9c70-ce6ff00e2c13';
     const CURATOR_FEED_ID  = '543f46c9-f531-489f-b219-50308b2e8903';
 
