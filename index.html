@@ -1064,7 +1064,7 @@
 
   <script>
     // ── Live Ticker via Yahoo Finance (no key, accurate prices) ──
-    const NO_DOLLAR = ['NASDAQ', 'S&P 500', 'NIKKEI', 'KOSPI', 'GOLD', 'SILVER', 'US OIL'];
+    const NO_DOLLAR = ['NASDAQ', 'S&P 500', 'NIKKEI', 'KOSPI'];
 
     const ASSETS = [
       { sym: 'BITCOIN', ticker: 'BTC-USD'  },
@@ -1098,8 +1098,9 @@
     async function fetchTicker() {
       try {
         const tickers = ASSETS.map(a => encodeURIComponent(a.ticker)).join(',');
-        const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${tickers}&fields=regularMarketPrice,regularMarketChangePercent`;
-        const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        const yahoo = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${tickers}&fields=regularMarketPrice,regularMarketChangePercent`;
+        const proxy = `https://corsproxy.io/?${encodeURIComponent(yahoo)}`;
+        const r = await fetch(proxy);
         const data = await r.json();
         const quotes = data?.quoteResponse?.result || [];
 
