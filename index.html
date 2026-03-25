@@ -1069,13 +1069,14 @@
     const NO_DOLLAR = ['NASDAQ', 'S&P 500', 'NIKKEI', 'KOSPI'];
 
     const MARKETS = [
-      { sym: 'NASDAQ',  id: 'NDX',     type: 'index'  },
-      { sym: 'S&P 500', id: 'SPX',     type: 'index'  },
-      { sym: 'GOLD',    id: 'XAU/USD', type: 'forex'  },
-      { sym: 'SILVER',  id: 'XAG/USD', type: 'forex'  },
+      { sym: 'NASDAQ',  id: 'NDX',     type: 'index'     },
+      { sym: 'S&P 500', id: 'SPX',     type: 'index'     },
+      { sym: 'GOLD',    id: 'XAU/USD', type: 'forex'     },
+      { sym: 'SILVER',  id: 'XAG/USD', type: 'forex'     },
       { sym: 'US OIL',  id: 'USOIL',   type: 'commodity' },
-      { sym: 'NIKKEI',  id: 'JP225',   type: 'index'  },
-      { sym: 'KOSPI',   id: 'KOSPI',   type: 'index'  },
+      { sym: 'NIKKEI',  id: 'JP225',   type: 'index'     },
+      { sym: 'KOSPI',   id: 'KOSPI200',type: 'index'     },
+    ];
     ];
 
     function formatPrice(p, sym) {
@@ -1106,21 +1107,23 @@
         items.push({ sym: 'ETH',     price: parseFloat(eth.lastPrice), change: parseFloat(eth.priceChangePercent), order: 1 });
       } catch(e) {}
 
-      // 2. Markets — Twelve Data (CORS enabled, free tier)
-      await Promise.allSettled(MARKETS.map(async (m, i) => {
-        try {
-          const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(m.id)}&apikey=${TWELVE_KEY}`;
-          const r = await fetch(url);
-          const d = await r.json();
-          if (d.close && !d.code) {
-            const price  = parseFloat(d.close);
-            const change = parseFloat(d.percent_change);
-            items.push({ sym: m.sym, price, change, order: i + 2 });
+      // 2. Markets — Twelve Data batch (1 API credit for all 7 symbols)
+      try {
+        const symbols = MARKETS.map(m => m.id).join(',');
+        const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbols)}&apikey=${TWELVE_KEY}`;
+        const r = await fetch(url);
+        const d = await r.json();
+
+        MARKETS.forEach((m, i) => {
+          // Batch response uses symbol as key
+          const q = d[m.id] || d[m.id.replace('/', '_')] || null;
+          if (q && q.close && !q.code) {
+            items.push({ sym: m.sym, price: parseFloat(q.close), change: parseFloat(q.percent_change), order: i + 2 });
           } else {
-            console.log(`${m.sym} (${m.id}) failed:`, d.code, d.message);
+            console.log(`${m.sym} (${m.id}) failed:`, q?.code, q?.message);
           }
-        } catch(e) {}
-      }));
+        });
+      } catch(e) { console.log('Batch fetch error:', e); }
 
       items.sort((a, b) => a.order - b.order);
       const html = items.map(i => makeItem(i.sym, i.price, i.change)).join('');
