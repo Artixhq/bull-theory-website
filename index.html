@@ -1063,50 +1063,71 @@
   </footer>
 
   <script>
-    // ── Live Ticker via Binance (top 5 crypto) ─────────
-    const COINS = [
-      { sym: 'BITCOIN', id: 'BTCUSDT' },
-      { sym: 'ETH',     id: 'ETHUSDT' },
-      { sym: 'BNB',     id: 'BNBUSDT' },
-      { sym: 'SOL',     id: 'SOLUSDT' },
-      { sym: 'XRP',     id: 'XRPUSDT' },
-      { sym: 'DOGE',    id: 'DOGEUSDT' },
-      { sym: 'ADA',     id: 'ADAUSDT'  },
-      { sym: 'AVAX',    id: 'AVAXUSDT' },
-      { sym: 'LINK',    id: 'LINKUSDT' },
-      { sym: 'DOT',     id: 'DOTUSDT'  },
+    // ── Live Ticker: Binance (crypto) + Twelve Data (markets) ──
+    const TWELVE_KEY = '4162658196104aa3ba8fdfcbdcb085f6';
+
+    const NO_DOLLAR = ['NASDAQ', 'S&P 500', 'NIKKEI', 'KOSPI'];
+
+    const MARKETS = [
+      { sym: 'NASDAQ',  id: 'QQQ',     type: 'stock'  },
+      { sym: 'S&P 500', id: 'SPY',     type: 'stock'  },
+      { sym: 'GOLD',    id: 'XAU/USD', type: 'forex'  },
+      { sym: 'SILVER',  id: 'XAG/USD', type: 'forex'  },
+      { sym: 'US OIL',  id: 'USO',     type: 'stock'  },
+      { sym: 'NIKKEI',  id: 'EWJ',     type: 'stock'  },
+      { sym: 'KOSPI',   id: 'EWY',     type: 'stock'  },
     ];
 
-    function formatPrice(p) {
-      if (p >= 1000) return '$' + p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      if (p >= 1)    return '$' + p.toFixed(2);
-      return '$' + p.toFixed(4);
+    function formatPrice(p, sym) {
+      const noSign = NO_DOLLAR.includes(sym);
+      const prefix = noSign ? '' : '$';
+      if (p >= 10000) return prefix + Math.round(p).toLocaleString('en-US');
+      if (p >= 100)   return prefix + p.toFixed(2);
+      if (p >= 1)     return prefix + p.toFixed(2);
+      return prefix + p.toFixed(4);
     }
 
     function makeItem(sym, price, change) {
       const dir   = change >= 0 ? 'up' : 'dn';
       const arrow = change >= 0 ? '\u25b2' : '\u25bc';
       const pct   = Math.abs(change).toFixed(2);
-      return `<span class="ticker-item"><span class="sym">${sym}</span> ${formatPrice(price)} <span class="${dir}">${arrow} ${pct}%</span></span>`;
+      return `<span class="ticker-item"><span class="sym">${sym}</span> ${formatPrice(price, sym)} <span class="${dir}">${arrow} ${pct}%</span></span>`;
     }
 
     async function fetchTicker() {
+      const items = [];
+
+      // 1. Crypto — Binance (real-time, no key)
       try {
-        const results = await Promise.all(
-          COINS.map(c =>
-            fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${c.id}`)
-              .then(r => r.json())
-          )
-        );
-        const html = results.map((d, i) =>
-          makeItem(COINS[i].sym, parseFloat(d.lastPrice), parseFloat(d.priceChangePercent))
-        ).join('');
-        document.getElementById('ticker').innerHTML = html + html;
+        const [btc, eth] = await Promise.all([
+          fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT').then(r => r.json()),
+          fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT').then(r => r.json()),
+        ]);
+        items.push({ sym: 'BITCOIN', price: parseFloat(btc.lastPrice), change: parseFloat(btc.priceChangePercent), order: 0 });
+        items.push({ sym: 'ETH',     price: parseFloat(eth.lastPrice), change: parseFloat(eth.priceChangePercent), order: 1 });
       } catch(e) {}
+
+      // 2. Markets — Twelve Data (CORS enabled, free tier)
+      await Promise.allSettled(MARKETS.map(async (m, i) => {
+        try {
+          const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(m.id)}&apikey=${TWELVE_KEY}`;
+          const r = await fetch(url);
+          const d = await r.json();
+          if (d.close && !d.code) {
+            const price  = parseFloat(d.close);
+            const change = parseFloat(d.percent_change);
+            items.push({ sym: m.sym, price, change, order: i + 2 });
+          }
+        } catch(e) {}
+      }));
+
+      items.sort((a, b) => a.order - b.order);
+      const html = items.map(i => makeItem(i.sym, i.price, i.change)).join('');
+      if (html) document.getElementById('ticker').innerHTML = html + html;
     }
 
     fetchTicker();
-    setInterval(fetchTicker, 30000);
+    setInterval(fetchTicker, 60000);
     const CURATOR_API_KEY  = 'f1b36557-a77d-4611-9c70-ce6ff00e2c13';
     const CURATOR_FEED_ID  = '543f46c9-f531-489f-b219-50308b2e8903';
 
