@@ -1073,17 +1073,16 @@
       { sym: 'S&P 500', id: 'SPY',     type: 'stock'  },
       { sym: 'GOLD',    id: 'XAU/USD', type: 'forex'  },
       { sym: 'SILVER',  id: 'XAG/USD', type: 'forex'  },
-      { sym: 'US OIL',  id: 'WTI/USD', type: 'commodity' },
-      { sym: 'NIKKEI',  id: 'EWJ',     type: 'stock'  },
-      { sym: 'KOSPI',   id: 'EWY',     type: 'stock'  },
+      { sym: 'US OIL',  id: 'CL1!',    type: 'commodity' },
+      { sym: 'NIKKEI',  id: 'JP225',   type: 'index'  },
+      { sym: 'KOSPI',   id: 'KOSPI',   type: 'index'  },
     ];
 
     function formatPrice(p, sym) {
       const noSign = NO_DOLLAR.includes(sym);
       const prefix = noSign ? '' : '$';
-      if (p >= 10000) return prefix + Math.round(p).toLocaleString('en-US');
-      if (p >= 100)   return prefix + p.toFixed(2);
-      if (p >= 1)     return prefix + p.toFixed(2);
+      if (p >= 1000) return prefix + p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (p >= 1)    return prefix + p.toFixed(2);
       return prefix + p.toFixed(4);
     }
 
