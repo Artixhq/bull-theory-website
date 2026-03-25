@@ -1189,8 +1189,13 @@
 
     fetch(`https://api.curator.io/v1/feeds/${CURATOR_FEED_ID}/posts?limit=5&status=1&api_key=${CURATOR_API_KEY}`)
       .then(r => r.json())
-      .then(data => renderPosts(data.posts || []))
-      .catch(() => {
+      .then(data => {
+        console.log('Curator response:', JSON.stringify(data).slice(0, 300));
+        const posts = data.posts || data.data || [];
+        renderPosts(posts);
+      })
+      .catch(err => {
+        console.log('Curator error:', err);
         document.getElementById('curator-feed-default-feed-layout').innerHTML = `
           <div style="padding:24px;text-align:center;">
             <a href="https://x.com/BullTheoryio" target="_blank" class="btn-primary"
