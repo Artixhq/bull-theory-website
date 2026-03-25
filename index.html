@@ -1069,11 +1069,11 @@
     const NO_DOLLAR = ['NASDAQ', 'S&P 500', 'NIKKEI', 'KOSPI'];
 
     const MARKETS = [
-      { sym: 'NASDAQ',  id: 'QQQ',     type: 'stock'  },
-      { sym: 'S&P 500', id: 'SPY',     type: 'stock'  },
+      { sym: 'NASDAQ',  id: 'NDX',     type: 'index'  },
+      { sym: 'S&P 500', id: 'SPX',     type: 'index'  },
       { sym: 'GOLD',    id: 'XAU/USD', type: 'forex'  },
       { sym: 'SILVER',  id: 'XAG/USD', type: 'forex'  },
-      { sym: 'US OIL',  id: 'CL1!',    type: 'commodity' },
+      { sym: 'US OIL',  id: 'USOIL',   type: 'commodity' },
       { sym: 'NIKKEI',  id: 'JP225',   type: 'index'  },
       { sym: 'KOSPI',   id: 'KOSPI',   type: 'index'  },
     ];
@@ -1116,6 +1116,8 @@
             const price  = parseFloat(d.close);
             const change = parseFloat(d.percent_change);
             items.push({ sym: m.sym, price, change, order: i + 2 });
+          } else {
+            console.log(`${m.sym} (${m.id}) failed:`, d.code, d.message);
           }
         } catch(e) {}
       }));
