@@ -1069,13 +1069,8 @@
     const NO_DOLLAR = ['NASDAQ', 'S&P 500', 'NIKKEI', 'KOSPI'];
 
     const MARKETS = [
-      { sym: 'NASDAQ',  id: 'NDX',     type: 'index'     },
-      { sym: 'S&P 500', id: 'SPX',     type: 'index'     },
-      { sym: 'GOLD',    id: 'XAU/USD', type: 'forex'     },
-      { sym: 'SILVER',  id: 'XAG/USD', type: 'forex'     },
-      { sym: 'US OIL',  id: 'USOIL',   type: 'commodity' },
-      { sym: 'NIKKEI',  id: 'JP225',   type: 'index'     },
-      { sym: 'KOSPI',   id: 'KOSPI200',type: 'index'     },
+      { sym: 'GOLD',   id: 'XAU/USD', type: 'forex' },
+      { sym: 'SILVER', id: 'XAG/USD', type: 'forex' },
     ];
     ];
 
@@ -1099,12 +1094,18 @@
 
       // 1. Crypto — Binance (real-time, no key)
       try {
-        const [btc, eth] = await Promise.all([
+        const [btc, eth, bnb, sol, xrp] = await Promise.all([
           fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT').then(r => r.json()),
           fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT').then(r => r.json()),
+          fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BNBUSDT').then(r => r.json()),
+          fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=SOLUSDT').then(r => r.json()),
+          fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=XRPUSDT').then(r => r.json()),
         ]);
         items.push({ sym: 'BITCOIN', price: parseFloat(btc.lastPrice), change: parseFloat(btc.priceChangePercent), order: 0 });
         items.push({ sym: 'ETH',     price: parseFloat(eth.lastPrice), change: parseFloat(eth.priceChangePercent), order: 1 });
+        items.push({ sym: 'BNB',     price: parseFloat(bnb.lastPrice), change: parseFloat(bnb.priceChangePercent), order: 2 });
+        items.push({ sym: 'SOL',     price: parseFloat(sol.lastPrice), change: parseFloat(sol.priceChangePercent), order: 3 });
+        items.push({ sym: 'XRP',     price: parseFloat(xrp.lastPrice), change: parseFloat(xrp.priceChangePercent), order: 4 });
       } catch(e) {}
 
       // 2. Markets — Twelve Data batch (1 API credit for all 7 symbols)
