@@ -1135,6 +1135,7 @@
     setInterval(fetchTicker, 60000);
     const CURATOR_API_KEY  = 'f1b36557-a77d-4611-9c70-ce6ff00e2c13';
     const CURATOR_FEED_ID  = '543f46c9-f531-489f-b219-50308b2e8903';
+    const PROXY_URL        = 'https://bull-theory-proxy-production.up.railway.app/tweets';
 
     function timeAgo(dateStr) {
       const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
@@ -1147,7 +1148,8 @@
     function highlightTags(text) {
       return text
         .replace(/(\$[A-Z]{1,6})/g, '<span class="tag">$1</span>')
-        .replace(/(#\w+)/g,         '<span class="tag">$1</span>');
+        .replace(/(#\w+)/g,         '<span class="tag">$1</span>')
+        .replace(/(https?:\/\/\S+)/g, '');
     }
 
     function renderPosts(posts) {
@@ -1156,10 +1158,10 @@
         container.innerHTML = '<div style="padding:24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-muted);">No posts found.</div>';
         return;
       }
-      container.innerHTML = posts.slice(0, 5).map(post => {
-        const url  = post.url || `https://x.com/BullTheoryio`;
+      container.innerHTML = posts.map(post => {
+        const url  = `https://x.com/BullTheoryio/status/${post.id}`;
         const text = highlightTags(post.text || '');
-        const time = timeAgo(post.source_created_at || post.created_at || new Date());
+        const time = timeAgo(post.created_at || new Date());
         return `
           <a class="post-card" href="${url}" target="_blank" rel="noopener"
              style="display:block;text-decoration:none;color:inherit;margin-bottom:8px;">
@@ -1187,15 +1189,14 @@
       }).join('');
     }
 
-    fetch(`https://api.curator.io/v1/feeds/${CURATOR_FEED_ID}/posts?limit=5&status=1&api_key=${CURATOR_API_KEY}`)
+    fetch(PROXY_URL)
       .then(r => r.json())
       .then(data => {
-        console.log('Curator response:', JSON.stringify(data).slice(0, 300));
-        const posts = data.posts || data.data || [];
-        renderPosts(posts);
+        console.log('Tweets response:', JSON.stringify(data).slice(0, 200));
+        renderPosts(data.tweets || []);
       })
       .catch(err => {
-        console.log('Curator error:', err);
+        console.log('Feed error:', err);
         document.getElementById('curator-feed-default-feed-layout').innerHTML = `
           <div style="padding:24px;text-align:center;">
             <a href="https://x.com/BullTheoryio" target="_blank" class="btn-primary"
