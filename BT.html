@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bull Theory | Advanced Market Insights</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --green: #5be312;
+      --green-dim: #3ea608;
+      --green-glow: rgba(91, 227, 18, 0.18);
+      --green-glow-strong: rgba(91, 227, 18, 0.35);
+      --bg: #080b06;
+      --bg2: #0d110a;
+      --bg3: #111608;
+      --surface: #141a0f;
+      --surface2: #1a2212;
+      --border: rgba(91, 227, 18, 0.12);
+      --border-bright: rgba(91, 227, 18, 0.35);
+      --text: #e8f5e0;
+      --text-dim: #8aaa76;
+      --text-muted: #4a6040;
+      --mono: 'DM Mono', 'Courier New', monospace;
+      --display: 'Bebas Neue', Impact, 'Arial Black', sans-serif;
+      --sans: 'Syne', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* NOISE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.5;
+    }
+
+    /* ─── NAV ─────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 64px;
+      background: rgba(8, 11, 6, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .nav-logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+    }
+
+    .nav-logo-text {
+      font-family: var(--display);
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--green);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--green); }
+
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--green);
+      padding: 8px 20px;
+      border-radius: 3px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ─── HERO ────────────────────────────────────────── */
+    .hero {
+      min-height: auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 100px 40px 40px;
+      position: relative;
+      overflow: hidden;
+      gap: 60px;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 20% 50%, rgba(91, 227, 18, 0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 20%, rgba(91, 227, 18, 0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* animated scan line */
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      opacity: 0.3;
+      animation: scanline 6s linear infinite;
+    }
+
+    @keyframes scanline {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+
+    .hero-left {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 1px;
+      background: var(--green);
+    }
+
+    .hero-h1 {
+      font-family: var(--display);
+      font-size: clamp(64px, 7vw, 110px);
+      line-height: 0.92;
+      letter-spacing: 2px;
+      color: var(--text);
+      margin-bottom: 8px;
+      font-weight: 900;
+    }
+
+    .hero-h1 .accent { color: var(--green); }
+
+    .hero-sub {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 420px;
+      margin: 28px 0 40px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--green);
+      color: var(--bg);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+      padding: 14px 28px;
+      border-radius: 3px;
+      text-decoration: none;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 24px var(--green-glow-strong);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border-bright);
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 14px 28px;
+      border-radius: 3px;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-item {}
+    .stat-val {
+      font-family: var(--display);
+      font-size: 32px;
+      color: var(--green);
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* hero bull graphic */
+    .hero-right {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bull-container {
+      position: relative;
+      width: 380px;
+      height: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bull-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      animation: spin-slow 20s linear infinite;
+    }
+
+    .bull-ring:nth-child(1) { width: 360px; height: 360px; border-color: rgba(91,227,18,0.06); animation-duration: 25s; }
+    .bull-ring:nth-child(2) { width: 300px; height: 300px; border-color: rgba(91,227,18,0.1); animation-duration: 18s; animation-direction: reverse; }
+    .bull-ring:nth-child(3) { width: 240px; height: 240px; border-color: rgba(91,227,18,0.15); animation-duration: 12s; border-style: dashed; }
+
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .bull-glow {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(91,227,18,0.2) 0%, transparent 70%);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.15); opacity: 0.7; }
+    }
+
+    .bull-logo-large {
+      position: relative;
+      z-index: 2;
+      width: 160px;
+      height: 160px;
+      background: var(--green);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 60px rgba(91, 227, 18, 0.3), 0 0 120px rgba(91, 227, 18, 0.1);
+    }
+
+    .bull-logo-large svg {
+      width: 110px;
+      height: 110px;
+      fill: #080b06;
+    }
+
+    /* ticker */
+    .ticker-bar {
+      width: 100%;
+      overflow: hidden;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+    }
+
+    .ticker-inner {
+      display: flex;
+      gap: 0;
+      animation: ticker 30s linear infinite;
+      white-space: nowrap;
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 32px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      border-right: 1px solid var(--border);
+    }
+
+    .ticker-item .sym { color: var(--text); font-weight: 500; }
+    .ticker-item .up { color: var(--green); }
+    .ticker-item .dn { color: #e05050; }
+
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ─── SECTION GENERIC ─────────────────────────────── */
+    section { padding: 80px 40px; }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: var(--green);
+    }
+
+    .section-title {
+      font-family: var(--display);
+      font-size: clamp(40px, 4vw, 64px);
+      letter-spacing: 1px;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+
+    .section-body {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.8;
+      max-width: 520px;
+    }
+
+    /* ─── WHAT WE COVER ───────────────────────────────── */
+    .what-section {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .what-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1px;
+      margin-top: 48px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .what-card {
+      background: var(--bg2);
+      padding: 32px 28px;
+      transition: background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .what-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--green);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+
+    .what-card:hover { background: var(--surface); }
+    .what-card:hover::after { transform: scaleX(1); }
+
+    .what-icon {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .what-card-title {
+      font-family: var(--display);
+      font-size: 22px;
+      letter-spacing: 1px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .what-card-body {
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--text-muted);
+    }
+
+    /* ─── FEED SECTION ────────────────────────────────── */
+    
+
+    
+
+    /* X embed container */
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    .x-widget-container {
+      padding: 0;
+    }
+
+    /* Fallback manual posts */
+    .manual-posts { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+    .post-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: border-color 0.25s, background 0.25s, transform 0.2s, box-shadow 0.25s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .post-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--green);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .post-card:hover {
+      border-color: var(--border-bright);
+      background: var(--surface);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--border-bright);
+    }
+
+    .post-card:hover::before { opacity: 1; }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .post-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+      box-shadow: 0 0 12px rgba(91,227,18,0.25);
+    }
+
+    .post-avatar svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--bg);
+    }
+
+    .post-handle {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    .post-handle strong {
+      display: block;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+      letter-spacing: 0.3px;
+    }
+
+    .post-time {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      background: rgba(91,227,18,0.06);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .post-body {
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .post-body .tag {
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    .post-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .post-action {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .post-card:hover .post-action { color: var(--green); }
+
+    /* right column features */
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    /* ─── TESTIMONIAL / MARQUEE ───────────────────────── */
+    .marquee-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 0;
+      overflow: hidden;
+    }
+
+    .marquee-track {
+      display: flex;
+      animation: marquee 20s linear infinite;
+      white-space: nowrap;
+    }
+
+    .marquee-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 40px;
+      font-family: var(--display);
+      font-size: 28px;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      border-right: 1px solid var(--border);
+    }
+
+    .marquee-item .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ─── CTA SECTION ─────────────────────────────────── */
+    .cta-section {
+      background: var(--bg);
+      text-align: center;
+      padding: 100px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(91,227,18,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section .section-title { font-size: clamp(48px, 6vw, 96px); }
+
+    .cta-section .section-body {
+      margin: 20px auto 40px;
+      text-align: center;
+    }
+
+    /* ─── FOOTER ──────────────────────────────────────── */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      font-family: var(--display);
+      font-size: 20px;
+      letter-spacing: 2px;
+      color: var(--green);
+    }
+
+    .footer-copy {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--green); }
+
+    /* ─── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 100px 20px 40px;
+        text-align: center;
+      }
+      .hero-right { display: none; }
+      .hero-eyebrow { justify-content: center; }
+      .hero-sub { margin: 28px auto 40px; }
+      .hero-actions { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      section { padding: 60px 20px; }
+      
+      footer { flex-direction: column; text-align: center; }
+    }
+
+    /* ─── ENTRANCE ANIMATIONS ─────────────────────────── */
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    [data-reveal].visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* Hide Curator default branding */
+    .crt-logo, .crt-load-more, .crt-panel, .crt-feed-window { display: none !important; }
+    .crt-post { background: none !important; border: none !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">
+      <div style="width:36px;height:36px;background:var(--green);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+        <img src="logo.png" alt="Bull Theory" style="width:32px;height:32px;object-fit:contain;" />
+      </div>
+      <span class="nav-logo-text">BULL THEORY</span>
+    </a>
+    <ul class="nav-links">
+      
+      <li><a href="#insights">Insights</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+    <a class="nav-cta" href="https://x.com/BullTheoryio" target="_blank">Follow on X →</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+
+    <div class="hero-left">
+      <div class="hero-eyebrow">Advanced Market Insights</div>
+      <h1 class="hero-h1">
+        BULL<br/><span class="accent">THEORY</span>
+      </h1>
+      <p class="hero-sub">
+        Research, trades, and all market stuff — simplified.<br/>
+        Crypto, stocks, macro. Built for those who move first.
+      </p>
+      <div class="hero-actions">
+        <a href="#feed" class="btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
+          View Feed
+        </a>
+        <a href="https://x.com/BullTheoryio" target="_blank" class="btn-secondary">
+          Follow @BullTheoryio
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="bull-container">
+        <div class="bull-ring"></div>
+        <div class="bull-ring"></div>
+        <div class="bull-ring"></div>
+        <div class="bull-glow"></div>
+        <div class="bull-logo-large">
+          <img src="logo.png" alt="Bull Theory" style="width:140px;height:140px;object-fit:contain;" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TICKER -->
+  <div class="ticker-bar">
+    <div class="ticker-inner" id="ticker">
+      <span class="ticker-item"><span class="sym">BTC</span> Loading...</span>
+    </div>
+  </div>
+
+  <!-- WHAT WE COVER -->
+  <section class="what-section" id="insights" data-reveal>
+    <div class="section-label">What We Cover</div>
+    <h2 class="section-title">THE FULL<br/>PICTURE</h2>
+    <p class="section-body">Every angle of global markets — stocks, crypto, macro, and geopolitics — decoded and delivered straight to you.</p>
+
+    <div class="what-grid">
+      <div class="what-card">
+        <div class="what-icon">📊</div>
+        <div class="what-card-title">MARKET RESEARCH</div>
+        <div class="what-card-body">Deep dives into global macro trends, equities, crypto, on-chain data, and market structure. We do the heavy lifting so you don't have to.</div>
+      </div>
+      <div class="what-card">
+        <div class="what-icon">🎯</div>
+        <div class="what-card-title">TRADE IDEAS</div>
+        <div class="what-card-body">High-conviction setups with entries, targets, and context. Built for traders who want clarity over noise.</div>
+      </div>
+      <div class="what-card">
+        <div class="what-icon">⚡</div>
+        <div class="what-card-title">BREAKING NEWS</div>
+        <div class="what-card-body">Real-time coverage of the events that move markets — with context, not just headlines.</div>
+      </div>
+      <div class="what-card">
+        <div class="what-icon">🔍</div>
+        <div class="what-card-title">ON-CHAIN ALPHA</div>
+        <div class="what-card-body">Wallet movements, whale activity, smart money flows — all translated into actionable insight.</div>
+      </div>
+      <div class="what-card">
+        <div class="what-icon">🌐</div>
+        <div class="what-card-title">MACRO WATCH</div>
+        <div class="what-card-body">Fed decisions, geopolitical shifts, oil, FX, and global liquidity — because every market is connected.</div>
+      </div>
+      <div class="what-card">
+        <div class="what-icon">🧵</div>
+        <div class="what-card-title">THREADS & EXPLAINERS</div>
+        <div class="what-card-body">Complex topics simplified into clear, digestible breakdowns. Learn while you earn.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEED SECTION -->
+
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <span class="marquee-item"><span class="dot"></span>RESEARCH</span>
+      <span class="marquee-item"><span class="dot"></span>TRADE IDEAS</span>
+      <span class="marquee-item"><span class="dot"></span>ON-CHAIN ALPHA</span>
+      <span class="marquee-item"><span class="dot"></span>MACRO ANALYSIS</span>
+      <span class="marquee-item"><span class="dot"></span>MARKET SIMPLIFIED</span>
+      <span class="marquee-item"><span class="dot"></span>BULL THEORY</span>
+      <span class="marquee-item"><span class="dot"></span>RESEARCH</span>
+      <span class="marquee-item"><span class="dot"></span>TRADE IDEAS</span>
+      <span class="marquee-item"><span class="dot"></span>ON-CHAIN ALPHA</span>
+      <span class="marquee-item"><span class="dot"></span>MACRO ANALYSIS</span>
+      <span class="marquee-item"><span class="dot"></span>MARKET SIMPLIFIED</span>
+      <span class="marquee-item"><span class="dot"></span>BULL THEORY</span>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <section class="cta-section" id="about">
+    <div class="section-label" style="justify-content:center;">Get In The Know</div>
+    <h2 class="section-title">DON'T MISS<br/>THE MOVE</h2>
+    <p class="section-body" style="text-align:center; margin: 20px auto 40px;">
+      Follow Bull Theory on X for real-time market insights,<br/>
+      trade signals, and everything else that moves the needle.
+    </p>
+    <a href="https://x.com/BullTheoryio" target="_blank" class="btn-primary" style="font-size:12px; padding: 16px 40px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25z"/></svg>
+      Follow on X — It's Free
+    </a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">BULL THEORY</div>
+    <p class="footer-copy">© 2025 Bull Theory. Advanced Market Insights. Not financial advice.</p>
+    <ul class="footer-links">
+      <li><a href="https://x.com/BullTheoryio" target="_blank">Follow on X</a></li>
+      <li><a href="#insights">What We Cover</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    // ── Live Ticker via Binance (top 10 crypto) ─────────
+    const COINS = [
+      { sym: 'BITCOIN', id: 'BTCUSDT'  },
+      { sym: 'ETH',     id: 'ETHUSDT'  },
+      { sym: 'BNB',     id: 'BNBUSDT'  },
+      { sym: 'SOL',     id: 'SOLUSDT'  },
+      { sym: 'XRP',     id: 'XRPUSDT'  },
+      { sym: 'DOGE',    id: 'DOGEUSDT' },
+      { sym: 'ADA',     id: 'ADAUSDT'  },
+      { sym: 'AVAX',    id: 'AVAXUSDT' },
+      { sym: 'LINK',    id: 'LINKUSDT' },
+      { sym: 'TON',     id: 'TONUSDT'  },
+    ];
+
+    function formatPrice(p) {
+      if (p >= 1000) return '$' + p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (p >= 1)    return '$' + p.toFixed(2);
+      return '$' + p.toFixed(4);
+    }
+
+    function makeItem(sym, price, change) {
+      const dir   = change >= 0 ? 'up' : 'dn';
+      const arrow = change >= 0 ? '\u25b2' : '\u25bc';
+      const pct   = Math.abs(change).toFixed(2);
+      return `<span class="ticker-item"><span class="sym">${sym}</span> ${formatPrice(price)} <span class="${dir}">${arrow} ${pct}%</span></span>`;
+    }
+
+    async function fetchTicker() {
+      try {
+        const results = await Promise.all(
+          COINS.map(c =>
+            fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${c.id}`)
+              .then(r => r.json())
+          )
+        );
+        const html = results.map((d, i) =>
+          makeItem(COINS[i].sym, parseFloat(d.lastPrice), parseFloat(d.priceChangePercent))
+        ).join('');
+        document.getElementById('ticker').innerHTML = html + html;
+      } catch(e) {}
+    }
+
+    fetchTicker();
+    setInterval(fetchTicker, 30000);
+
+    // ── Scroll reveal ──────────────────────────────────
+    const reveals = document.querySelectorAll('[data-reveal]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
